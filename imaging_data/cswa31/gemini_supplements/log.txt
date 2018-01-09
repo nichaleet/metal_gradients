@@ -1,0 +1,7 @@
+http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GEMINI/20090226_GS-2009A-Q-64_OBSLOG?logkey=pkg
+http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GEMINI/20090225_GS-2009A-Q-64_OBSLOG?logkey=pkg
+http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GEMINI/20090224_GS-2009A-Q-64_OBSLOG?logkey=pkg
+http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GEMINI/20090222_GS-2009A-Q-64_OBSLOG?logkey=pkg
+http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GEMINI/20090221_GS-2009A-Q-64_OBSLOG?logkey=pkg
+http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GEMINI/20090220_GS-2009A-Q-64_OBSLOG?logkey=pkg
+http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/data/pub/GEMINI/20090219_GS-2009A-Q-64_OBSLOG?logkey=pkg

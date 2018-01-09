@@ -1,0 +1,44 @@
+
+#
+# /robots.txt for physics web pages
+#
+# General stops
+#
+
+User-agent: *
+Disallow: /cgi-bin/
+Disallow: /education/
+Disallow: /etcetera/
+Disallow: /people/
+Disallow: /faculty/
+Disallow: /insidephysics/
+Disallow: /news/
+Disallow: /research/
+Disallow: /usage/
+Disallow: /newsletter/
+Disallow: /newsevents/
+
+#
+# /robots.txt for physics 13 class web page
+#
+# for Everett Lipman
+#
+
+Disallow: /~phys13/
+Disallow: /~phys13/announcements/
+Disallow: /~phys13/handouts/
+Disallow: /~phys13/pageim/
+Disallow: /~phys13/capa/
+
+# /robots.txt for physics 3 class web page
+#
+# for Everett Lipman
+#
+
+Disallow: /~phys3/lipman/
+Disallow: /~phys3/lipman/announcements/
+Disallow: /~phys3/lipman/handouts/
+Disallow: /~phys3/lipman/pageim/
+Disallow: /~phys3/lipman/loncapa/
+
+

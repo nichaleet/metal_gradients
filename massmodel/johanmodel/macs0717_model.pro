@@ -1,0 +1,93 @@
+pro macs0717_model, image,hdr,pixsize,newimage,newheader,newscale
+; IDL function to reconstruct the z=2.3 arc in Abell773 in the image plane.
+;
+; INPUTS:
+; image   - a data cube with dimensions [x, y,*] ; note that usually osiris images have inaccurate RA-DEC, please use the already adjusted data or just use the extracted Ha,velocity map etc
+; hdr     - header for a 2D slice (coordinates [x,y] only) of "image", with correct astrometric keywords
+; pixsize - pixel size for "image" (arcseconds)
+; OUTPUT:
+; returns the source plane reconstruction, with a pixel scale of 0.005 arcseconds.
+
+
+; xsky [ysky] is list of x [y] values of points on sky - these transform
+; to position xsource [ysource] when the lensing potential is taken
+; into account.
+readcol, 'MACS0717_source.dat',ids,xsource,ysource ;(id, RA,Dec)
+readcol, 'MACS0717_Osiris.mul',idi,xsky,ysky     ;osiris coordinate
+
+;WARNING: this lens model predicts multiple images for the source! Use only the data corresponding to the observed image,
+; and ignore all other grid values.
+
+;good = where(ysky lt 51.7263)
+;idi = idi[good]
+;xsky = xsky[good]
+;ysky = ysky[good]
+; Conveniently, "idi" and "ids" are now exactly the same!
+
+; Convert xsky, ysky positions from (ra, dec) degrees into pixels
+adxy, hdr, xsky, ysky, x, y
+
+naxis1 = sxpar(hdr,'NAXIS1')
+naxis2 = sxpar(hdr,'NAXIS2')
+
+;remove the pixels in Johan's model that are out of the observed FOV
+outfield = where(x ge NAXIS1+5. or y ge NAXIS2+5. or x lt -5. or y lt -5.)
+if outfield(0) ne -1 then remove,outfield,x,y,ids,xsource,ysource,idi,xsky,ysky
+
+;now x,y is the pixel number of the coordinate given in image plane from johan's model
+
+; Interpolate image from regular grid to xskypix,yskypix
+
+; Interpolate image to points [x,y]
+print, 'interpolating image'
+;intimage = min_curve_surf(image, xgrid=[0,1], ygrid=[0,1], xpout=x, ypout=y)
+; Can't use min_curve_surf because arrays are too big. Instead use
+; bilinear interpolation which is very fast
+intimage = interpolate(image[*,*,0], x, y)
+; Map intimage values into source plane
+   ; First triangulate the source-plane data points
+triangulate, xsource, ysource, tr, b
+
+   ; Determine the grid of x and y values to use in the source plane.
+sourcescale = fltarr(n_elements(ysource)-1)
+for i=0,n_elements(sourcescale)-1 do sourcescale(i)=ysource(i+1)-ysource(i)
+
+;Choose one of the scales below by looking at the reasonable output
+pscale = abs(ysource[1]-ysource[0])   ; pixel scale (arcseconds)
+;pscale = median(sourcescale)
+pscale = 0.02
+
+xgs = findgen(round((max(xsource)-min(xsource))/pscale) + 1.)*pscale + min(xsource)
+ygs = findgen(round((max(ysource)-min(ysource))/pscale) + 1.)*pscale + min(ysource)
+   ; use "trigrid" to recover the 2D image
+source_out = trigrid(xsource, ysource, intimage, tr, xout=xgs, yout=ygs)
+help, xsource,ysource
+help, xgs,ygs
+;stop
+; To conserve surface brightness,
+; multiply by (source plane pixel size)/(image plane pixel size)
+source_out = source_out * (pscale)^2. / (pixsize)^2.
+
+; Now loop over all wavelengths
+source_cube = make_array((size(source_out))[1], (size(source_out))[2],(size(image))[3])
+for i=0,(size(image))[3]-1 do begin
+   intimage = interpolate(image[*,*,i], x, y)
+   source_cube[*,*,i] = trigrid(xsource, ysource, intimage, tr, xout=xgs, yout=ygs,missing=1./0.)
+endfor
+
+print, 'scale is', pscale
+
+mkhdr,newheader,source_cube
+paraname = ['CRVAL1','CRVAL2','CRPIX1','CRPIX2','CDELT1','CDELT2']
+paraval = [xsource[0],ysource[0],0,0,pscale/3600.,pscale/3600.]
+
+hdr_paraname_str = ['CTYPE1','CTYPE2','CUNIT1','CUNIT2','RADESYS']
+hdr_paraname_str_val = ['RA---TAN','DEC--TAN','deg','deg','FK5']
+
+for ii=0,n_elements(hdr_paraname_Str)-1 do sxaddpar,newheader,hdr_paraname_str(ii),hdr_paraname_str_val(ii)
+for ii=0,n_elements(paraname)-1 do sxaddpar, newheader,paraname[ii],paraval[ii]
+
+newimage = source_cube
+newscale= pscale
+;stop
+end
